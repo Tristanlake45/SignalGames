@@ -14,7 +14,12 @@
     --key-bg: #818384;
     --key-fg: #ffffff;
     --key-bg-weak: #565758;
-  
+
+  /* keyboard sizing (fluid) */
+    --key-h: 52px;
+    --key-gap: 6px;
+    --key-radius: 10px;
+    --key-font: 14px;
     --focus: rgba(255,255,255,.25);
   }
   
@@ -145,31 +150,55 @@
   }
   
   .keyboard-wrap {
-    padding-top: 4px;
+    padding-top: 6px;
+    display: flex;
+    justify-content: center; /* centers keyboard block */
   }
   
   .keyboard {
+    width: min(520px, 100%);     /* never wider than container, but can fill */
     display: grid;
-    gap: 8px;
+    gap: var(--key-gap);
+    margin: 0 auto;              /* centers inside parent */
   }
   
   .krow {
     display: flex;
-    gap: 6px;
+    gap: var(--key-gap);
     justify-content: center;
+    width: 100%;
   }
   
+  /* Make keys fluid: each row spreads evenly and stays on-screen */
   .key {
     background: var(--key-bg);
     color: var(--key-fg);
     border: none;
-    border-radius: 10px;
-    padding: 12px 10px;
-    min-width: 34px;
+    border-radius: var(--key-radius);
+    height: var(--key-h);
+    padding: 0 10px;
+  
+    /* Fluid sizing magic */
+    flex: 1 1 0;                  /* distribute evenly across row */
+    min-width: 0;                 /* allow shrinking without overflow */
+    max-width: 48px;              /* keeps keys from getting huge on desktop */
+  
     font-weight: 800;
+    font-size: var(--key-font);
     text-transform: uppercase;
     cursor: pointer;
     user-select: none;
+  
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .key.wide {
+    flex: 1.5 1 0;                /* wider than letters */
+    max-width: 78px;
+    font-size: 12px;
+    letter-spacing: .02em;
   }
   
   .key:focus-visible {
@@ -177,15 +206,45 @@
     outline-offset: 2px;
   }
   
-  .key.wide {
-    min-width: 64px;
-    font-size: 12px;
-    letter-spacing: .02em;
-  }
-  
   .key.correct { background: var(--tile-correct); color: #fff; }
   .key.present { background: var(--tile-present); color: #fff; }
   .key.absent  { background: var(--tile-absent);  color: #fff; }
+  
+  /* Mobile: make keyboard bigger but still fit */
+  @media (max-width: 480px) {
+    :root {
+      --key-h: 58px;
+      --key-gap: 6px;
+      --key-font: 15px;
+    }
+  
+    .keyboard {
+      width: 100%;
+    }
+  
+    .key {
+      max-width: 999px;           /* allow them to expand to fill row */
+    }
+  
+    .key.wide {
+      max-width: 999px;
+      flex: 1.9 1 0;
+      font-size: 12px;
+    }
+  }
+  
+  /* Very small phones: tighten a bit so it never overflows */
+  @media (max-width: 360px) {
+    :root {
+      --key-h: 52px;
+      --key-gap: 5px;
+      --key-font: 14px;
+    }
+  
+    .key {
+      padding: 0 8px;
+    }
+  }
   
   /* helps prevent “double tap zoom” delays on mobile buttons */
   .key, .btn { touch-action: manipulation; }
