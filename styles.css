@@ -1,0 +1,191 @@
+:root {
+    --bg: #121213;
+    --fg: #ffffff;
+    --muted: rgba(255,255,255,.75);
+    --border: #3a3a3c;
+    --border-filled: #565758;
+  
+    --tile-absent: #3a3a3c;
+  
+    /* UPDATED COLORS */
+    --tile-present: #F5A623;  /* Light Orange */
+    --tile-correct: #005CB9;  /* Honda Blue */
+  
+    --key-bg: #818384;
+    --key-fg: #ffffff;
+    --key-bg-weak: #565758;
+  
+    --focus: rgba(255,255,255,.25);
+  }
+  
+  html[data-theme="light"] {
+    --bg: #f5f6f7;
+    --fg: #101114;
+    --muted: rgba(16,17,20,.7);
+    --border: #d0d3d6;
+    --border-filled: #a7abb0;
+  
+    --tile-absent: #a7abb0;
+  
+    /* UPDATED COLORS */
+    --tile-present: #F5A623;  /* Light Orange */
+    --tile-correct: #0066CC;;  /* Honda Blue */
+  
+    --key-bg: #d0d3d6;
+    --key-fg: #101114;
+    --key-bg-weak: #a7abb0;
+  
+    --focus: rgba(16,17,20,.15);
+  }
+  * { box-sizing: border-box; }
+  
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+  }
+  
+  .topbar {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 24px 16px 8px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  
+  .brand h1 {
+    margin: 0;
+    letter-spacing: 0.22em;
+    font-size: 28px;
+  }
+  
+  .brand p {
+    margin: 6px 0 0;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  
+  .wrap {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 8px 16px 24px;
+  }
+  
+  .board {
+    display: grid;
+    grid-template-rows: repeat(6, 1fr);
+    gap: 6px;
+    justify-content: center;
+    padding: 12px 0;
+  }
+  
+  .row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+  
+  .tile {
+    width: 56px;
+    height: 56px;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: 800;
+    text-transform: uppercase;
+    user-select: none;
+  }
+  
+  @media (max-width: 420px) {
+    .tile { width: 48px; height: 48px; font-size: 26px; }
+  }
+  
+  .tile.filled { border-color: var(--border-filled); }
+  
+  .tile.correct { background: var(--tile-correct); border-color: var(--tile-correct); color: #fff; }
+  .tile.present { background: var(--tile-present); border-color: var(--tile-present); color: #fff; }
+  .tile.absent  { background: var(--tile-absent);  border-color: var(--tile-absent);  color: #fff; }
+  
+  .below { display: grid; gap: 12px; }
+  
+  .message {
+    min-height: 24px;
+    text-align: center;
+    color: var(--muted);
+  }
+  
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .btn {
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background: var(--tile-correct);
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  
+  .btn-secondary {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--fg);
+  }
+  
+  .keyboard-wrap {
+    padding-top: 4px;
+  }
+  
+  .keyboard {
+    display: grid;
+    gap: 8px;
+  }
+  
+  .krow {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+  }
+  
+  .key {
+    background: var(--key-bg);
+    color: var(--key-fg);
+    border: none;
+    border-radius: 10px;
+    padding: 12px 10px;
+    min-width: 34px;
+    font-weight: 800;
+    text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  .key:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+  
+  .key.wide {
+    min-width: 64px;
+    font-size: 12px;
+    letter-spacing: .02em;
+  }
+  
+  .key.correct { background: var(--tile-correct); color: #fff; }
+  .key.present { background: var(--tile-present); color: #fff; }
+  .key.absent  { background: var(--tile-absent);  color: #fff; }
+  
+  /* helps prevent “double tap zoom” delays on mobile buttons */
+  .key, .btn { touch-action: manipulation; }
