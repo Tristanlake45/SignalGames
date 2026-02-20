@@ -100,7 +100,6 @@
   
     // --- DOM helpers ---
     const messageEl = document.getElementById("message");
-    const resetBtn = document.getElementById("resetBtn");
     const keyboardEl = document.getElementById("keyboard");
     const themeToggleBtn = document.getElementById("themeToggle");
   
@@ -141,13 +140,11 @@
       if (ANSWER_WORDS.length === 0) {
         setMessage("Answer list is empty after filtering. Add valid 5-letter words.");
         gameOver = true;
-        resetBtn.disabled = true;
         return;
       }
       if (!VALID_GUESS_SET || VALID_GUESS_SET.size === 0) {
         setMessage("Valid word list not loaded. Check valid-words.txt.");
         gameOver = true;
-        resetBtn.disabled = true;
         return;
       }
   
@@ -162,10 +159,8 @@
       if (hasPlayedToday()) {
         gameOver = true;
         setMessage("You already played VERDLE today. Come back tomorrow!");
-        resetBtn.disabled = true;
       } else {
         setMessage("Type or tap letters. Enter to submit. Backspace clears.");
-        resetBtn.disabled = false;
       }
     }
   
@@ -303,7 +298,6 @@
         setMessage("You got it! 🎉");
         gameOver = true;
         markPlayedToday();
-        resetBtn.disabled = true;
         return;
       }
   
@@ -314,7 +308,6 @@
         setMessage(`Out of guesses! The word was ${solution}.`);
         gameOver = true;
         markPlayedToday();
-        resetBtn.disabled = true;
       } else {
         setMessage("Keep going!");
       }
@@ -364,7 +357,6 @@
       } catch (err) {
         console.error(err);
         setMessage(String(err.message || err));
-        resetBtn.disabled = true;
         document.addEventListener("keydown", (e) => e.preventDefault(), { capture: true });
         return;
       }
@@ -372,7 +364,6 @@
       initGame();
   
       document.addEventListener("keydown", handleKeyDown);
-      resetBtn.addEventListener("click", initGame);
   
       themeToggleBtn.addEventListener("click", () => {
         const current = document.documentElement.getAttribute("data-theme");
