@@ -101,6 +101,62 @@
     messageEl.textContent = msg;
   }
 
+  function getRowEl(row) {
+    return document.querySelectorAll(".row")[row];
+  }
+  
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  
+  function restartAnimation(el, className) {
+    el.classList.remove(className);
+    void el.offsetWidth; // force reflow
+    el.classList.add(className);
+  }
+  
+  function animatePop(tile) {
+    restartAnimation(tile, "pop");
+  }
+  
+  function animateShakeRow(rowIndex) {
+    const rowEl = getRowEl(rowIndex);
+    if (!rowEl) return;
+    restartAnimation(rowEl, "shake");
+    rowEl.addEventListener(
+      "animationend",
+      () => rowEl.classList.remove("shake"),
+      { once: true }
+    );
+  }
+  
+  async function animateRevealRow(rowIndex, result) {
+    for (let c = 0; c < WORD_LENGTH; c++) {
+      const tile = getTile(rowIndex, c);
+      tile.classList.add("flip");
+  
+      // halfway through flip, apply color
+      setTimeout(() => {
+        tile.classList.remove("correct", "present", "absent");
+        tile.classList.add(result[c]);
+      }, 300);
+  
+      await sleep(120);
+    }
+  
+    // wait for final tile to finish flipping
+    await sleep(650);
+  }
+  
+  async function animateWinBounce(rowIndex) {
+    for (let c = 0; c < WORD_LENGTH; c++) {
+      const tile = getTile(rowIndex, c);
+      restartAnimation(tile, "bounce");
+      setTimeout(() => tile.classList.remove("bounce"), 520);
+      await sleep(100);
+    }
+  }
+
   // --- Game state ---
   let solution = "";
   let currentRow = 0;
@@ -233,6 +289,7 @@
     const tile = getTile(currentRow, currentCol);
     tile.textContent = letter;
     tile.classList.add("filled");
+    animatePop(tile);
     currentCol++;
   }
 
@@ -272,43 +329,50 @@
     return guess;
   }
 
-  function submitGuess() {
+  async function submitGuess() {
     const guess = getCurrentGuess();
-
+  
     if (guess.length !== WORD_LENGTH) {
       setMessage("Not enough letters.");
+      animateShakeRow(currentRow);
       return;
     }
-
+  
     if (!VALID_GUESS_SET.has(guess)) {
       setMessage("Not in word list.");
+      animateShakeRow(currentRow);
       return;
     }
-
+  
     const result = evaluateGuess(guess, solution);
-
+  
     // store for share
     guessesMade.push(guess);
     resultsGrid.push(result);
-
+  
+    // lock input during animation
+    gameOver = true;
+  
+    // reveal row with flip animation
+    await animateRevealRow(currentRow, result);
+  
+    // update keyboard AFTER reveal animation
     for (let c = 0; c < WORD_LENGTH; c++) {
-      const tile = getTile(currentRow, c);
-      tile.classList.remove("correct", "present", "absent");
-      tile.classList.add(result[c]);
       paintKeyboardLetter(guess[c], result[c]);
     }
-
+  
     if (guess === solution) {
       setMessage("You got it! 🎉");
+      await animateWinBounce(currentRow);
       gameOver = true;
       markPlayedToday();
       if (shareBtn) shareBtn.style.display = "inline-flex";
       return;
     }
-
+  
     currentRow++;
     currentCol = 0;
-
+  
     if (currentRow === MAX_GUESSES) {
       setMessage(`Out of guesses! The word was ${solution}.`);
       gameOver = true;
@@ -316,6 +380,7 @@
       if (shareBtn) shareBtn.style.display = "inline-flex";
     } else {
       setMessage("Keep going!");
+      gameOver = false;
     }
   }
 

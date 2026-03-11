@@ -245,6 +245,88 @@
       padding: 0 8px;
     }
   }
-  
+  /* ---------- Tile animation helpers ---------- */
+.tile {
+  transform-origin: center;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Pop when typing a letter */
+.tile.pop {
+  animation: tilePop 120ms ease-out;
+}
+
+/* Shake for invalid / incomplete word */
+.row.shake {
+  animation: rowShake 420ms ease-in-out;
+}
+
+/* Flip on reveal */
+.tile.flip {
+  animation: tileFlip 600ms ease-in-out;
+}
+
+/* Win bounce wave */
+.tile.bounce {
+  animation: tileBounce 500ms ease-out;
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes tilePop {
+  0% {
+    transform: scale(0.92);
+  }
+  60% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes tileFlip {
+  0% {
+    transform: rotateX(0);
+  }
+  45% {
+    transform: rotateX(90deg);
+  }
+  55% {
+    transform: rotateX(90deg);
+  }
+  100% {
+    transform: rotateX(0);
+  }
+}
+
+@keyframes tileBounce {
+  0% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-12px);
+  }
+  55% {
+    transform: translateY(0);
+  }
+  70% {
+    transform: translateY(-4px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes rowShake {
+  0%   { transform: translateX(0); }
+  15%  { transform: translateX(-8px); }
+  30%  { transform: translateX(8px); }
+  45%  { transform: translateX(-6px); }
+  60%  { transform: translateX(6px); }
+  75%  { transform: translateX(-3px); }
+  100% { transform: translateX(0); }
+}
+
   /* helps prevent “double tap zoom” delays on mobile buttons */
   .key, .btn { touch-action: manipulation; }
