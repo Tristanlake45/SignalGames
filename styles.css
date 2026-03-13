@@ -245,6 +245,146 @@
       padding: 0 8px;
     }
   }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--fg);
+    font-size: 20px;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  
+  .icon-btn:focus-visible,
+  .modal-close:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+  
+  /* Modal */
+  .modal.hidden {
+    display: none;
+  }
+  
+  .modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+  }
+  
+  .modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+  }
+  
+  .modal-card {
+    position: relative;
+    z-index: 1001;
+    width: min(92vw, 420px);
+    margin: 10vh auto 0;
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 22px 18px 18px;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+  }
+  
+  .modal-card h2 {
+    margin: 0 32px 14px 0;
+    font-size: 22px;
+    text-align: center;
+  }  
+  .modal-credit p { 
+    text-align: center;
+  }
+  .modal-card p {
+    margin: 10px 0;
+    line-height: 1.45;
+  }
+  
+  .modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    color: var(--fg);
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  
+  .help-example {
+    display: flex;
+    gap: 8px;
+    margin: 16px auto 14px;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .help-tile {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 22px;
+    color: #fff;
+    background: var(--border);
+    border: 2px solid var(--border);
+    transform-origin: center;
+    backface-visibility: hidden;
+    will-change: transform;
+  }
+  
+  .help-tile.help-correct {
+    background: var(--tile-correct);
+    border-color: var(--tile-correct);
+  }
+  
+  .help-tile.help-present {
+    background: var(--tile-present);
+    border-color: var(--tile-present);
+  }
+  
+  .help-tile.help-absent {
+    background: var(--tile-absent);
+    border-color: var(--tile-absent);
+  }
+  
+  
+  .modal-credit {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 13px;
+  }
+  
+  .modal-credit p {
+    margin: 4px 0;
+  }
+  
+  body.modal-open {
+    overflow: hidden;
+  }
   /* ---------- Tile animation helpers ---------- */
 .tile {
   transform-origin: center;

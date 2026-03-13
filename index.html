@@ -15,6 +15,10 @@
     </div>
 
     <div class="topbar-actions">
+      <button id="helpBtn" class="icon-btn" type="button" aria-label="How to play">
+        ?
+      </button>
+
       <button id="shareBtn" class="btn btn-secondary" type="button" aria-label="Share results" style="display:none;">
         Share
       </button>
@@ -55,6 +59,44 @@
       </section>
     </section>
   </main>
+
+  <!-- Help Modal -->
+  <div id="helpModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <button id="closeHelpBtn" class="modal-close" type="button" aria-label="Close help">
+        ×
+      </button>
+
+      <h2 id="helpTitle">How to Play VERDLE</h2>
+
+      <p>
+        You get <strong>six guesses</strong> to find the correct <strong>five-letter word</strong>.
+      </p>
+
+      <div class="help-example">
+        <div class="help-tile help-correct">C</div>
+        <div class="help-tile help-present">A</div>
+        <div class="help-tile help-absent">R</div>
+      </div>
+
+      <p>
+        <strong>Blue</strong> means the correct letter is in the correct place.
+      </p>
+      <p>
+        <strong>Yellow</strong> means the correct letter is in the word, but in the wrong place.
+      </p>
+      <p>
+        <strong>Gray</strong> means the letter is not in the word.
+      </p>
+
+      <div class="modal-credit">
+        <p>Made for the Vern Eide Signal</p>
+        <p>Developed by Tristan Lake</p>
+      </div>
+    </div>
+  </div>
 
   <script src="./app.js" defer></script>
 </body>
