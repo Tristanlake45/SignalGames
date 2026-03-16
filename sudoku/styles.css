@@ -78,6 +78,7 @@ html[data-theme="light"] .difficulty-btn:hover {
 
 .check-info {
   color: var(--muted);
+  min-height: 24px;
 }
 
 .sudoku-board {
@@ -89,6 +90,13 @@ html[data-theme="light"] .difficulty-btn:hover {
   border: 3px solid var(--fg);
   background: var(--bg);
   margin: 0 auto;
+  transition: opacity 180ms ease, filter 180ms ease, transform 180ms ease;
+}
+
+.sudoku-board.is-locked {
+  opacity: 0.58;
+  filter: grayscale(0.3);
+  pointer-events: none;
 }
 
 .sudoku-cell {
@@ -155,32 +163,35 @@ html[data-theme="light"] .difficulty-btn:hover {
 }
 
 .sudoku-actions {
-  width: min(92vw, 900px);
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center;
+  width: min(92vw, 540px);
+  display: grid;
   gap: 10px;
+  justify-items: center;
 }
 
-.sudoku-actions > .btn {
+.sudoku-actions-top {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sudoku-actions-top > .btn {
   min-width: 145px;
-  flex: 0 0 auto;
 }
 
 .number-tray {
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
   gap: 8px;
-  flex: 0 0 auto;
 }
 
 .tray-num {
-  width: 46px;
+  width: 100%;
   height: 46px;
-  min-width: 46px;
+  min-width: 0;
   min-height: 46px;
   padding: 0;
   font-size: 16px;
@@ -230,12 +241,6 @@ html[data-theme="light"] .tray-num:hover {
 
 .sudoku-cell.board-dance {
   animation: cellDance 820ms cubic-bezier(.16,1,.3,1);
-}
-
-.topbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .icon-btn {
@@ -467,20 +472,14 @@ body.modal-open {
   }
 }
 
-@media (max-width: 900px) {
-  .sudoku-actions {
-    width: min(92vw, 540px);
-    flex-wrap: wrap;
-  }
-
+@media (max-width: 640px) {
   .number-tray {
-    flex: 1 1 100%;
-    justify-content: center;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 520px) {
-  .number-tray {
-    flex-wrap: wrap;
+@media (max-width: 420px) {
+  .sudoku-actions-top > .btn {
+    min-width: 132px;
   }
 }

@@ -3,13 +3,15 @@
   const checkInfoEl = document.getElementById("checkInfo");
   const checkBtn = document.getElementById("checkBtn");
   const clearBtn = document.getElementById("clearBtn");
-  const trayButtons = document.querySelectorAll(".tray-num");
+  const trayButtons = document.querySelectorAll(".tray-num[data-number]");
   const difficultyButtons = document.querySelectorAll(".difficulty-btn");
   const themeToggleBtn = document.getElementById("themeToggle");
   const helpBtn = document.getElementById("helpBtn");
   const helpModal = document.getElementById("helpModal");
   const closeHelpBtn = document.getElementById("closeHelpBtn");
   const modalBackdrop = document.getElementById("modalBackdrop");
+  const deleteBtn = document.getElementById("deleteBtn");
+  const shareBtn = document.getElementById("shareBtn");
 
   const THEME_KEY = "verdleTheme";
 
@@ -31,6 +33,10 @@
   let selectedCell = null;
   let checksUsed = 0;
   let hasWon = false;
+  let timerStarted = false;
+  let startTime = null;
+  let endTime = null;
+  let elapsedMs = 0;
 
   function applyTheme(theme) {
     const safeTheme = theme === "light" ? "light" : "dark";
@@ -47,6 +53,66 @@
     const now = new Date();
     const localMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     return Math.floor(localMidnight.getTime() / (1000 * 60 * 60 * 24));
+  }
+
+  function getTodayKey() {
+    return String(getDaySeed());
+  }
+
+  function getCompletionStorageKey(difficulty) {
+    return `sudokuComplete:${difficulty}:${getTodayKey()}`;
+  }
+
+  function getShareStorageKey(difficulty) {
+    return `sudokuShare:${difficulty}:${getTodayKey()}`;
+  }
+
+  function isDifficultyCompleteToday(difficulty) {
+    return localStorage.getItem(getCompletionStorageKey(difficulty)) === "1";
+  }
+
+  function markDifficultyCompleteToday(difficulty) {
+    localStorage.setItem(getCompletionStorageKey(difficulty), "1");
+  }
+
+  function saveSharePayload(difficulty, payload) {
+    localStorage.setItem(getShareStorageKey(difficulty), JSON.stringify(payload));
+  }
+
+  function loadSharePayload(difficulty) {
+    const raw = localStorage.getItem(getShareStorageKey(difficulty));
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+
+  function clearDailyRunState() {
+    timerStarted = false;
+    startTime = null;
+    endTime = null;
+    elapsedMs = 0;
+  }
+
+  function startTimerIfNeeded() {
+    if (timerStarted || hasWon) return;
+    timerStarted = true;
+    startTime = Date.now();
+  }
+
+  function stopTimer() {
+    if (!timerStarted || startTime == null) return;
+    endTime = Date.now();
+    elapsedMs = endTime - startTime;
+  }
+
+  function formatElapsed(ms) {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${String(seconds).padStart(2, "0")}`;
   }
 
   function hashSeed(seed, difficulty) {
@@ -160,7 +226,7 @@
     const totalChecks = DIFFICULTY_CHECKS[currentDifficulty];
     const checksLeft = Math.max(0, totalChecks - checksUsed);
     checkInfoEl.textContent = `Checks left: ${checksLeft}${extraMessage ? ` • ${extraMessage}` : ""}`;
-    checkBtn.disabled = checksLeft <= 0;
+    checkBtn.disabled = checksLeft <= 0 || hasWon;
   }
 
   function restartAnimation(el, className) {
@@ -177,7 +243,7 @@
   }
 
   function selectCell(cell) {
-    if (!cell || cell.dataset.given === "true") return;
+    if (!cell || cell.dataset.given === "true" || hasWon) return;
 
     clearSelectionVisuals();
     selectedCell = cell;
@@ -188,7 +254,7 @@
   }
 
   function moveSelection(deltaRow, deltaCol) {
-    if (!selectedCell) return;
+    if (!selectedCell || hasWon) return;
 
     let row = Number(selectedCell.dataset.row);
     let col = Number(selectedCell.dataset.col);
@@ -212,7 +278,7 @@
 
   function renderBoard(board) {
     boardEl.innerHTML = "";
-    boardEl.classList.remove("board-win");
+    boardEl.classList.remove("board-win", "is-locked");
     selectedCell = null;
     hasWon = false;
 
@@ -256,72 +322,75 @@
 
   function setSelectedValue(value) {
     if (!selectedCell || selectedCell.dataset.given === "true" || hasWon) return;
-  
+
+    startTimerIfNeeded();
+
     selectedCell.textContent = String(value);
     selectedCell.classList.remove("invalid");
     restartAnimation(selectedCell, "pop");
-  
+
     const row = Number(selectedCell.dataset.row);
     const col = Number(selectedCell.dataset.col);
-  
+
     updateCompletedLines(row, col);
     checkBoardSolved();
   }
-  
+
   function clearSelectedValue() {
     if (!selectedCell || selectedCell.dataset.given === "true" || hasWon) return;
-  
+
     selectedCell.textContent = "";
     selectedCell.classList.remove("invalid");
-  
+
     const row = Number(selectedCell.dataset.row);
     const col = Number(selectedCell.dataset.col);
-  
+
     updateCompletedLines(row, col);
   }
-  
+
   function clearBoard() {
     if (hasWon) return;
-  
+
     const cells = boardEl.querySelectorAll(".sudoku-cell.user");
     cells.forEach(cell => {
       cell.textContent = "";
       cell.classList.remove("invalid", "row-complete", "col-complete");
     });
-  
-    boardEl.classList.remove("board-win");
+
+    boardEl.classList.remove("board-win", "is-locked");
+    clearDailyRunState();
     updateMeta();
   }
-  
+
   function checkCompletedRow(row) {
     const rowCells = [];
     let complete = true;
     let correct = true;
-  
+
     for (let col = 0; col < 9; col++) {
       const cell = getCellAt(row, col);
       rowCells.push(cell);
-  
+
       const value = cell.textContent.trim();
       if (!value) {
         complete = false;
         correct = false;
         break;
       }
-  
+
       if (Number(value) !== currentSolution[row][col]) {
         correct = false;
       }
     }
-  
+
     const alreadyComplete = rowCells.every(cell => cell.classList.contains("row-complete"));
-  
+
     rowCells.forEach(cell => cell.classList.remove("row-complete"));
-  
+
     if (complete && correct) {
       rowCells.forEach((cell, index) => {
         cell.classList.add("row-complete");
-  
+
         if (!alreadyComplete) {
           setTimeout(() => {
             restartAnimation(cell, "spark");
@@ -330,36 +399,36 @@
       });
     }
   }
-  
+
   function checkCompletedColumn(col) {
     const colCells = [];
     let complete = true;
     let correct = true;
-  
+
     for (let row = 0; row < 9; row++) {
       const cell = getCellAt(row, col);
       colCells.push(cell);
-  
+
       const value = cell.textContent.trim();
       if (!value) {
         complete = false;
         correct = false;
         break;
       }
-  
+
       if (Number(value) !== currentSolution[row][col]) {
         correct = false;
       }
     }
-  
+
     const alreadyComplete = colCells.every(cell => cell.classList.contains("col-complete"));
-  
+
     colCells.forEach(cell => cell.classList.remove("col-complete"));
-  
+
     if (complete && correct) {
       colCells.forEach((cell, index) => {
         cell.classList.add("col-complete");
-  
+
         if (!alreadyComplete) {
           setTimeout(() => {
             restartAnimation(cell, "spark");
@@ -368,7 +437,7 @@
       });
     }
   }
-  
+
   function updateCompletedLines(row, col) {
     checkCompletedRow(row);
     checkCompletedColumn(col);
@@ -386,7 +455,6 @@
     }
 
     if (!hasWon) {
-      hasWon = true;
       celebrateBoardWin();
     }
 
@@ -394,7 +462,11 @@
   }
 
   function celebrateBoardWin() {
-    boardEl.classList.add("board-win");
+    hasWon = true;
+    stopTimer();
+    markDifficultyCompleteToday(currentDifficulty);
+
+    boardEl.classList.add("board-win", "is-locked");
 
     for (let r = 0; r < 9; r++) {
       for (let c = 0; c < 9; c++) {
@@ -405,7 +477,16 @@
       }
     }
 
-    updateMeta("Puzzle complete!");
+    const payload = {
+      difficulty: currentDifficulty,
+      elapsedMs,
+      checksUsed,
+      checksTotal: DIFFICULTY_CHECKS[currentDifficulty]
+    };
+    saveSharePayload(currentDifficulty, payload);
+
+    updateMeta(`Puzzle complete in ${formatElapsed(elapsedMs)}!`);
+    if (shareBtn) shareBtn.style.display = "inline-flex";
   }
 
   function checkBoard() {
@@ -436,9 +517,48 @@
     updateMeta(hasErrors ? "Some entries are incorrect" : "No incorrect entries found");
   }
 
+  function buildShareText() {
+    const payload = loadSharePayload(currentDifficulty) || {
+      difficulty: currentDifficulty,
+      elapsedMs,
+      checksUsed,
+      checksTotal: DIFFICULTY_CHECKS[currentDifficulty]
+    };
+
+    const diffLabel = payload.difficulty.toUpperCase();
+    const timeText = payload.elapsedMs > 0 ? formatElapsed(payload.elapsedMs) : "Completed";
+    const checksText = `${payload.checksUsed}/${payload.checksTotal}`;
+
+    return [
+      `Sudoku ${diffLabel} ✓`,
+      `Time: ${timeText}`,
+      `Checks used: ${checksText}`,
+      ``,
+      `Play: vernei.de/SignalGames/sudoku`
+    ].join("\n");
+  }
+
+  async function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+  }
+
   function setDifficulty(difficulty) {
     currentDifficulty = difficulty;
     checksUsed = 0;
+    clearDailyRunState();
 
     difficultyButtons.forEach(btn => {
       btn.classList.toggle("active", btn.dataset.difficulty === difficulty);
@@ -449,7 +569,36 @@
     currentSolution = solution;
 
     renderBoard(currentPuzzle);
-    updateMeta();
+
+    if (shareBtn) shareBtn.style.display = "none";
+
+    if (isDifficultyCompleteToday(difficulty)) {
+      hasWon = true;
+      boardEl.classList.add("is-locked");
+      updateMeta("Already completed today. Come back tomorrow!");
+      if (shareBtn) shareBtn.style.display = "inline-flex";
+    } else {
+      hasWon = false;
+      updateMeta();
+    }
+  }
+
+  function isHelpModalOpen() {
+    return !!(helpModal && !helpModal.classList.contains("hidden"));
+  }
+
+  function openHelpModal() {
+    if (!helpModal) return;
+    helpModal.classList.remove("hidden");
+    helpModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+  }
+
+  function closeHelpModal() {
+    if (!helpModal) return;
+    helpModal.classList.add("hidden");
+    helpModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
   }
 
   difficultyButtons.forEach(btn => {
@@ -463,23 +612,6 @@
       setSelectedValue(Number(btn.dataset.number));
     });
   });
-  function isHelpModalOpen() {
-    return !!(helpModal && !helpModal.classList.contains("hidden"));
-  }
-  
-  function openHelpModal() {
-    if (!helpModal) return;
-    helpModal.classList.remove("hidden");
-    helpModal.setAttribute("aria-hidden", "false");
-    document.body.classList.add("modal-open");
-  }
-  
-  function closeHelpModal() {
-    if (!helpModal) return;
-    helpModal.classList.add("hidden");
-    helpModal.setAttribute("aria-hidden", "true");
-    document.body.classList.remove("modal-open");
-  }
 
   document.addEventListener("keydown", (e) => {
     if (isHelpModalOpen()) {
@@ -488,37 +620,37 @@
       }
       return;
     }
-  
+
     if (!selectedCell || hasWon) return;
-  
+
     if (e.key >= "1" && e.key <= "9") {
       setSelectedValue(Number(e.key));
       return;
     }
-  
+
     if (e.key === "Backspace" || e.key === "Delete" || e.key === "0") {
       clearSelectedValue();
       return;
     }
-  
+
     if (e.key === "ArrowUp") {
       e.preventDefault();
       moveSelection(-1, 0);
       return;
     }
-  
+
     if (e.key === "ArrowDown") {
       e.preventDefault();
       moveSelection(1, 0);
       return;
     }
-  
+
     if (e.key === "ArrowLeft") {
       e.preventDefault();
       moveSelection(0, -1);
       return;
     }
-  
+
     if (e.key === "ArrowRight") {
       e.preventDefault();
       moveSelection(0, 1);
@@ -528,20 +660,36 @@
   checkBtn.addEventListener("click", checkBoard);
   clearBtn.addEventListener("click", clearBoard);
 
+  if (deleteBtn) {
+    deleteBtn.addEventListener("click", clearSelectedValue);
+  }
+
+  if (shareBtn) {
+    shareBtn.addEventListener("click", async () => {
+      try {
+        await copyToClipboard(buildShareText());
+        updateMeta("Copied result to clipboard!");
+      } catch {
+        updateMeta("Could not copy result.");
+      }
+    });
+  }
+
   if (themeToggleBtn) {
     themeToggleBtn.addEventListener("click", () => {
       const current = document.documentElement.getAttribute("data-theme");
       applyTheme(current === "dark" ? "light" : "dark");
     });
   }
+
   if (helpBtn) {
     helpBtn.addEventListener("click", openHelpModal);
   }
-  
+
   if (closeHelpBtn) {
     closeHelpBtn.addEventListener("click", closeHelpModal);
   }
-  
+
   if (modalBackdrop) {
     modalBackdrop.addEventListener("click", closeHelpModal);
   }
