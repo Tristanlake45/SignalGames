@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sudoku | Vern Eide Games</title>
+  <link rel="stylesheet" href="../shared/css/site.css" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body data-depth="1" data-page="sudoku">
+  <div data-include="header"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <h1>SUDOKU</h1>
+      <p>The Vern Eide Number Game</p>
+    </div>
+
+    <div class="topbar-actions">
+      <button id="themeToggle" class="btn btn-secondary" type="button" aria-label="Toggle theme">
+        Light / Dark
+      </button>
+    </div>
+  </header>
+
+  <main class="sudoku-wrap">
+    <section class="sudoku-panel">
+      <div class="sudoku-toolbar">
+        <button class="difficulty-btn btn btn-secondary active" data-difficulty="easy">Easy</button>
+        <button class="difficulty-btn btn btn-secondary" data-difficulty="medium">Medium</button>
+        <button class="difficulty-btn btn btn-secondary" data-difficulty="hard">Hard</button>
+      </div>
+
+      <div class="sudoku-meta">
+        <div id="checkInfo" class="check-info">Checks left: 1</div>
+      </div>
+
+      <div id="sudokuBoard" class="sudoku-board" aria-label="Sudoku board"></div>
+
+      <div class="sudoku-actions">
+        <button id="checkBtn" class="btn" type="button">Check Board</button>
+        <button id="clearBtn" class="btn btn-warning" type="button">Clear Board</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="../shared/js/include.js"></script>
+  <script src="./app.js" defer></script>
+</body>
+</html>
