@@ -34,6 +34,9 @@
     </div>
 
     <div class="topbar-actions">
+      <button id="helpBtn" class="icon-btn" type="button" aria-label="How to play">
+        ?
+      </button>
       <button id="themeToggle" class="btn btn-secondary" type="button" aria-label="Toggle theme">
         Light / Dark
       </button>
@@ -72,6 +75,54 @@
       </div>
     </section>
   </main>
+
+   <!-- Help Modal -->
+   <div id="helpModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <button id="closeHelpBtn" class="modal-close" type="button" aria-label="Close help">
+        ×
+      </button>
+
+      <h2 id="helpTitle">How to Play Sudoku</h2>
+
+      <p>
+        Fill the grid so that every <strong>row</strong>, every <strong>column</strong>, and every
+        <strong>3×3 box</strong> contains the numbers <strong>1 through 9</strong>.
+      </p>
+
+      <div class="help-example-sudoku">
+        <div class="help-sudoku-grid">
+          <div class="help-sudoku-cell given">5</div>
+          <div class="help-sudoku-cell"></div>
+          <div class="help-sudoku-cell given">8</div>
+          <div class="help-sudoku-cell user">3</div>
+          <div class="help-sudoku-cell given">2</div>
+          <div class="help-sudoku-cell"></div>
+          <div class="help-sudoku-cell given">7</div>
+          <div class="help-sudoku-cell"></div>
+          <div class="help-sudoku-cell given">1</div>
+        </div>
+      </div>
+
+      <p>
+        Tap or click a blank square, then enter a number from <strong>1–9</strong>.
+      </p>
+      <p>
+        Use <strong>Check Board</strong> to verify your entries. Easy allows <strong>1</strong> check,
+        Medium allows <strong>2</strong>, and Hard allows <strong>3</strong>.
+      </p>
+      <p>
+        Use <strong>Clear Board</strong> to erase all of your entered numbers and start that day’s puzzle over.
+      </p>
+
+      <div class="modal-credit">
+        <p>Made for the Vern Eide Signal</p>
+        <p>Developed by Tristan Lake</p>
+      </div>
+    </div>
+  </div>
 
   <script src="./app.js" defer></script>
 </body>

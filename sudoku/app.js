@@ -6,6 +6,10 @@
   const trayButtons = document.querySelectorAll(".tray-num");
   const difficultyButtons = document.querySelectorAll(".difficulty-btn");
   const themeToggleBtn = document.getElementById("themeToggle");
+  const helpBtn = document.getElementById("helpBtn");
+  const helpModal = document.getElementById("helpModal");
+  const closeHelpBtn = document.getElementById("closeHelpBtn");
+  const modalBackdrop = document.getElementById("modalBackdrop");
 
   const THEME_KEY = "verdleTheme";
 
@@ -459,38 +463,62 @@
       setSelectedValue(Number(btn.dataset.number));
     });
   });
+  function isHelpModalOpen() {
+    return !!(helpModal && !helpModal.classList.contains("hidden"));
+  }
+  
+  function openHelpModal() {
+    if (!helpModal) return;
+    helpModal.classList.remove("hidden");
+    helpModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+  }
+  
+  function closeHelpModal() {
+    if (!helpModal) return;
+    helpModal.classList.add("hidden");
+    helpModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+  }
 
   document.addEventListener("keydown", (e) => {
+    if (isHelpModalOpen()) {
+      if (e.key === "Escape") {
+        closeHelpModal();
+      }
+      return;
+    }
+  
     if (!selectedCell || hasWon) return;
-
+  
     if (e.key >= "1" && e.key <= "9") {
       setSelectedValue(Number(e.key));
       return;
     }
-
+  
     if (e.key === "Backspace" || e.key === "Delete" || e.key === "0") {
       clearSelectedValue();
       return;
     }
-
+  
     if (e.key === "ArrowUp") {
       e.preventDefault();
       moveSelection(-1, 0);
       return;
     }
-
+  
     if (e.key === "ArrowDown") {
       e.preventDefault();
       moveSelection(1, 0);
       return;
     }
-
+  
     if (e.key === "ArrowLeft") {
       e.preventDefault();
       moveSelection(0, -1);
       return;
     }
-
+  
     if (e.key === "ArrowRight") {
       e.preventDefault();
       moveSelection(0, 1);
@@ -505,6 +533,17 @@
       const current = document.documentElement.getAttribute("data-theme");
       applyTheme(current === "dark" ? "light" : "dark");
     });
+  }
+  if (helpBtn) {
+    helpBtn.addEventListener("click", openHelpModal);
+  }
+  
+  if (closeHelpBtn) {
+    closeHelpBtn.addEventListener("click", closeHelpModal);
+  }
+  
+  if (modalBackdrop) {
+    modalBackdrop.addEventListener("click", closeHelpModal);
   }
 
   initTheme();
