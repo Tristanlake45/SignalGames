@@ -4,10 +4,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Vern Eide Games</title>
+  <script>
+    (() => {
+      const theme = localStorage.getItem("verdleTheme") || "dark";
+      document.documentElement.setAttribute("data-theme", theme === "light" ? "light" : "dark");
+    })();
+  </script>
   <link rel="stylesheet" href="./shared/css/site.css" />
+  <link rel="prefetch" href="/SignalGames/verdle/" />
+  <link rel="prefetch" href="/SignalGames/sudoku/" />
 </head>
-<body data-depth="0" data-page="home">
-  <div data-include="header"></div>
+
+<body data-page="home">
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="site-logo" href="./">Vern Eide Games</a>
+  
+      <nav class="site-nav" aria-label="Game navigation">
+        <a href="./verdle/">Verdle</a>
+        <a href="./sudoku/">Sudoku</a>
+      </nav>
+    </div>
+  </header>
 
   <header class="home-topbar">
     <div class="home-brand">
@@ -80,7 +98,6 @@
     </section>
   </main>
 
-  <script src="./shared/js/include.js"></script>
   <script>
     (() => {
       const THEME_KEY = "verdleTheme";
@@ -92,19 +109,12 @@
         localStorage.setItem(THEME_KEY, safeTheme);
       }
 
-      function initTheme() {
-        const stored = localStorage.getItem(THEME_KEY);
-        applyTheme(stored || "dark");
-      }
-
       if (themeToggleBtn) {
         themeToggleBtn.addEventListener("click", () => {
           const current = document.documentElement.getAttribute("data-theme");
           applyTheme(current === "dark" ? "light" : "dark");
         });
       }
-
-      initTheme();
     })();
   </script>
 </body>

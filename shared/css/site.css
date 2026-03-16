@@ -192,7 +192,7 @@
     left: 0;
     height: 100%;
     width: 0%;
-    background: #d9dadd;
+    background: var(--border);
     will-change: width, transform;
     transform: translateX(0);
   }
